@@ -23,6 +23,7 @@ jobs:
       id: deploy
       run: |
         aws deploy create-deployment \
+        --file-exists-behavior OVERWRITE \
         --application-name mynodeapp \
         --deployment-group-name mynodeapp-grp \
         --deployment-config-name CodeDeployDefault.OneAtATime \
