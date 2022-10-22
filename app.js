@@ -3,7 +3,7 @@ const app = express();
 const hostname = '127.0.0.1';
 const port = 3000;
 
-const version = 'v0.3';
+const version = 'xxxx';
 
 app.get('/', (req, res) => {
     res.send(`<html>
