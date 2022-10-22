@@ -75,7 +75,9 @@ sudo ./install auto
 sudo service codedeploy-agent start
 ```
 
-
+```sh
+sudo service codedeploy-agent status #check codedeploy status
+```
 
 
 
