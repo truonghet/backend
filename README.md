@@ -151,3 +151,31 @@ git remote add origin gitlinkrepo-xxx
 ```sh
 git push origin main
 ```
+
+# Create appspec.yml
+```sh
+version: 0.0
+os: linux
+files:
+  - source: /
+    destination: /home/ec2-user/backend
+hooks:
+# ApplicationStop:
+# DownloadBundle:
+#  BeforeInstall:
+#    - location: scripts/before_install.sh
+#      timeout: 300
+#      runas: root
+# Install:
+  AfterInstall:
+    - location: scripts/after_install.sh
+      timeout: 300
+      runas: root
+  ApplicationStart:
+    - location: scripts/application_start.sh
+      timeout: 300
+      runas: root
+# ValidateService:
+```
+
+
