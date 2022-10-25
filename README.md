@@ -1,8 +1,14 @@
-# backend-1
+## Installation instructions
 
-[![CI/CD Pipeline](https://github.com/truonghet/backend/actions/workflows/deploy.yml/badge.svg)](https://github.com/truonghet/backend/actions/workflows/deploy.yml)
+### 1. Launch amazon linux server in aws
 
-# Launch new EC2 instance
+### 2. ssh to linux to install packages
+
+```sh
+ssh -i <key.pem> ec2-user@<ip-address> -v
+```
+
+### 3. Update and Upgrade linux machine and install node, nvm and pm2
 
 ```sh
 sudo yum update
@@ -16,34 +22,80 @@ sudo yum upgrade
 sudo yum install -y git htop wget
 ```
 
-# Install Nodejs
+#### 3.1 install node
+
+To **install** or **update** nvm, you should run the [install script][2]. To do that, you may either download and run the script manually, or use the following cURL or Wget command:
+```sh
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+```
+Or
 ```sh
 wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
 ```
-# Setup env to install nvm
+
+Running either of the above commands downloads a script and runs it. The script clones the nvm repository to `~/.nvm`, and attempts to add the source lines from the snippet below to the correct profile file (`~/.bash_profile`, `~/.zshrc`, `~/.profile`, or `~/.bashrc`).
+
+#### 3.2 Copy & Past (each line separately)
+<a id="profile_snippet"></a>
 ```sh
 export NVM_DIR="$HOME/.nvm"
-```
-
-```sh
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-```
-
-```sh
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 ```
-# Install latest  Node
+
+#### 3.3 Verify that nvm has been installed
+
 ```sh
-nvm install --lts
+nvm --version
 ```
 
+#### 3.4 Install node
 
-# Install PM2
 ```sh
-npm install pm2 -g
+nvm install --lts # Latest stable node js server version
 ```
 
-# Set node, npm and pm2 for root user
+#### 3.5 Check nodejs installed
+```sh
+node --version
+```
+
+#### 3.6 Check npm installed
+```sh
+npm -v
+```
+
+### 4. Clone nodejs-aws-codedeploy-pipeline repository
+
+```sh
+cd /home/ec2-user
+```
+
+```sh
+git clone https://github.com/saasscaleup/nodejs-aws-codedeploy-pipeline.git
+```
+
+### 5. Run node app.js  (Make sure everything working)
+
+```sh
+cd nodejs-aws-codedeploy-pipeline
+```
+
+```sh
+npm install
+```
+
+```sh
+node app.js
+```
+
+### 6. Install pm2
+```sh
+npm install -g pm2 # may require sudo
+```
+
+### 7. Set node, pm2 and npm available to root
+
 ```sh
 sudo ln -s "$(which node)" /sbin/node
 ```
@@ -54,128 +106,37 @@ sudo ln -s "$(which npm)" /sbin/npm
 sudo ln -s "$(which pm2)" /sbin/pm2
 ```
 
-#  Install aws code deploy agent
+### 8 Starting the app as sudo (Run nodejs in background and when server restart)
 ```sh
-sudo yum install -y ruby
+sudo pm2 start app.js --name=nodejs-express-app
+```
+```sh
+sudo pm2 save     # saves the running processes
+                  # if not saved, pm2 will forget
+                  # the running apps on next boot
+```
+
+#### 8.1 IMPORTANT: If you want pm2 to start on system boot
+```sh
+sudo pm2 startup # starts pm2 on computer boot
+```
+
+### 9. Install aws code deploy agent 
+```sh
+sudo yum install -y ruby 
 ```
 
 ```sh
-wget https://aws-codedeploy-ap-southeast-1.s3.ap-southeast-1.amazonaws.com/latest/install
+wget https://aws-codedeploy-us-east-1.s3.us-east-1.amazonaws.com/latest/install
 ```
 
 ```sh
 chmod +x ./install
 ```
-
 ```sh
 sudo ./install auto
 ```
-
 ```sh
 sudo service codedeploy-agent start
 ```
-
-```sh
-sudo service codedeploy-agent status #check codedeploy status
-```
-
-
-
-
-
-
-
-
-
-
-# build nodejs application
-```sh
-npm init -y 
-npm express
-```
-
-# Paste web content
-```sh
-const express = require('express');
-const app = express();
-const hostname = '127.0.0.1';
-const port = 3000;
-
-const version = 'v0.7';
-
-app.get('/', (req, res) => {
-    res.send(`<html>
-                    <head>
-                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    </head>
-                    <body style="background-color:#232f3e">
-                        <h1 style="color:#EC7211 !important;text-align: center;margin-top: 0;"> [Version ${version}]: CI/CD - Codedeploy - GithubAction-HetTV</h1>
-                        <div style="position: fixed;top: 50%;left: 50%;transform: translate(-50%, -50%)">
-                            <img src="https://picsum.photos/1500/600?random=1">
-                        </div>
-                    </body>
-                   </html>`);
-
-    console.log(`[Version ${version}]: New request => http://${hostname}:${port}` + req.url);
-
-})
-
-app.listen(port, () => {
-    console.log(`[Version ${version}]: Server running at http://${hostname}:${port}/`);
-})
-```
-
-# Git init
-```sh
-git init
-```
-# Create .gitignore and add node_modules
-```sh
-git add .
-```
-
-```sh
-git commit -m "xxxx"
-```
-
-
-```sh
-git branch -M main
-```
-
-```sh
-git remote add origin gitlinkrepo-xxx
-```
-
-
-```sh
-git push origin main
-```
-
-# Create appspec.yml
-```sh
-version: 0.0
-os: linux
-files:
-  - source: /
-    destination: /home/ec2-user/backend
-hooks:
-# ApplicationStop:
-# DownloadBundle:
-#  BeforeInstall:
-#    - location: scripts/before_install.sh
-#      timeout: 300
-#      runas: root
-# Install:
-  AfterInstall:
-    - location: scripts/after_install.sh
-      timeout: 300
-      runas: root
-  ApplicationStart:
-    - location: scripts/application_start.sh
-      timeout: 300
-      runas: root
-# ValidateService:
-```
-
 
