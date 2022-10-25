@@ -11,7 +11,7 @@ app.get('/', (req, res) => {
                         <meta name="viewport" content="width=device-width, initial-scale=1.0">
                     </head>
                     <body style="background-color:#232f3e">
-                        <h1 style="color:#EC7211 !important;text-align: center;margin-top: 0;"> [Version ${version}]: CI/CD - Codedeploy - GithubAction-HetTV</h1>
+                        <h1 style="color:#EC7211 !important;text-align: center;margin-top: 0;"> [Version ${version}]: met qua</h1>
                         <div style="position: fixed;top: 50%;left: 50%;transform: translate(-50%, -50%)">
                             <img src="https://picsum.photos/1500/600?random=1">
                         </div>
