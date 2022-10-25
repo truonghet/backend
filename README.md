@@ -140,6 +140,3 @@ sudo ./install auto
 sudo service codedeploy-agent start
 ```
 
-### 10. Continue in AWS console...
-
-Watch the rest of the youtube video...
